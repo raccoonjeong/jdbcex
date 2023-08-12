@@ -7,6 +7,9 @@ import org.raccoon.jdbcex.domain.TodoVO;
 import org.raccoon.jdbcex.dto.TodoDTO;
 import org.raccoon.jdbcex.util.MapperUtil;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Log4j2
 public enum TodoService {
     INSTANCE;
@@ -25,5 +28,34 @@ public enum TodoService {
 //        System.out.println("todoVO: " + todoVO);
         log.info(todoVO);
         dao.insert(todoVO);
+    }
+
+    public List<TodoDTO> listAll() throws Exception {
+        List<TodoVO> voList = dao.selectAll();
+        log.info("voList...........");
+        log.info(voList);
+        List<TodoDTO> dtoList = voList.stream()
+                .map(vo -> modelMapper.map(vo, TodoDTO.class))
+                .collect(Collectors.toList());
+
+        return dtoList;
+    }
+
+    public TodoDTO get(Long tno) throws Exception {
+        log.info("tno: " + tno);
+        TodoVO todoVO = dao.selectOne(tno);
+        TodoDTO todoDTO = modelMapper.map(todoVO, TodoDTO.class);
+        return todoDTO;
+    }
+
+    public void modify(TodoDTO todoDTO) throws Exception {
+        log.info("todoDTO " + todoDTO);
+        TodoVO todoVO = modelMapper.map(todoDTO, TodoVO.class);
+        dao.updateOne(todoVO);
+    }
+
+    public void remove(Long tno) throws Exception {
+        log.info("remove tno: " + tno);
+        dao.deleteOne(tno);
     }
 }
